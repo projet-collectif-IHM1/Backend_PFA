@@ -24,15 +24,11 @@ async def create_video(back:BackGround ):
     if not cat:
         raise HTTPException(status_code=404, detail="categorie not found")
 
-
-    video_data = back.dict()
-
-    result = await db.backgrounds.insert_one(video_data)
-
-
-    update_result = await db.categories.update_one(
-        {"_id": ObjectId(categorie_id)},
-        {"$push": {"categories": str(result.inserted_id)}}  
+    result = await db.offres.insert_one(back.model_dump())
+    
+    await db.categories.update_one(
+        {"_id": ObjectId(back.hotel_id)},
+        {"$push": {"videos": back.model_dump()}}
     )
 
     return {"id": str(result.inserted_id)}
