@@ -24,10 +24,10 @@ async def create_video(back:BackGround ):
     if not cat:
         raise HTTPException(status_code=404, detail="categorie not found")
 
-    result = await db.offres.insert_one(back.model_dump())
+    result = await db.backgrounds.insert_one(back.model_dump())
     
     await db.categories.update_one(
-        {"_id": ObjectId(back.hotel_id)},
+        {"_id": ObjectId(back.categorie_id)},
         {"$push": {"videos": back.model_dump()}}
     )
 
@@ -46,7 +46,7 @@ async def get_categorie(video_id: str):
 
 @vid_router.get("/", response_model=List[BackGround])
 async def get_payes():
-    cats = await db.categories.find().to_list(100)
+    cats = await db.backgrounds.find().to_list(100)
 
     # Convertir _id en string et l'ajouter en tant que 'id'
     for cat in cats:
