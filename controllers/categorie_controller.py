@@ -28,7 +28,7 @@ async def get_payes():
         cat["id"] = str(cat["_id"])
         del cat["_id"]  # Supprimer _id original si nécessaire
 
-    return JSONResponse(status_code=200, content={"status_code": 200, "payes": cats})
+    return JSONResponse(status_code=200, content={"status_code": 200, "categories": cats})
 
 @cat_router.get("/{categorie_id}", response_model=Categorie)
 async def get_categorie(categorie_id: str):
