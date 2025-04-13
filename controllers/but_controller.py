@@ -15,9 +15,13 @@ client = AsyncIOMotorClient(MONGO_URI)
 db = client[MONGO_DB]
 
 @but_router.post("/")
-async def create_paye(paye: But):
-    result = await db.buts.insert_one(paye.dict())
-    return {"id": str(result.inserted_id)} 
+async def create_hotel(but: But):
+    user = await db.users.find_one({"_id": ObjectId(but.user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
+    result = await db.buts.insert_one(but.dict())
+    return {"id": str(result.inserted_id)}
+
 
 @but_router.get("/", response_model=List[But])
 async def get_payes():
