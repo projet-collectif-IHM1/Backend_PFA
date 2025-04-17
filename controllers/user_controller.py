@@ -25,6 +25,9 @@ async def register(user: User):
     existing_user = await db.users.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email déjà utilisé")
+    country= await db.countries.find_one({"_id": ObjectId(user.country_id)})
+    if not country:
+        raise HTTPException(status_code=404, detail="country not found")
 
     hashed_password = pwd_context.hash(user.password)
     user_data = user.dict()

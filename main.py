@@ -5,6 +5,7 @@ from controllers.categorie_controller import cat_router
 from controllers.background_controller import vid_router
 from controllers.motivation_controller import mot_router
 from controllers.but_controller import but_router
+from controllers.country_controller import pays_router
 
 app = FastAPI()
 
@@ -27,6 +28,7 @@ app.include_router(cat_router, prefix="/categories", tags=["categories"])
 app.include_router(vid_router, prefix="/videos", tags=["categories"])
 app.include_router(mot_router, prefix="/motivations", tags=["motivations"])
 app.include_router(but_router, prefix="/buts", tags=["buts"])
+app.include_router(pays_router, prefix="/pays", tags=["pays"])
 
 @app.get("/")
 async def root():
