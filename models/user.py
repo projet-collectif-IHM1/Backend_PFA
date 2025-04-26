@@ -6,7 +6,7 @@ class User(BaseModel):
     email: str
     FamilyName:str
     password: str
-    education: str
+    education: Optional[str] = None
     country: Optional[str] = None
 
     

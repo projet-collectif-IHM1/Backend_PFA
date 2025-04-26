@@ -34,3 +34,32 @@ async def get_payes():
 
     return JSONResponse(status_code=200, content={"status_code": 200, "buts": cats})
 
+@but_router.get("/{but_id}", response_model=But)
+async def get_but_by_id(but_id: str):
+    but = await db.buts.find_one({"_id": ObjectId(but_id)})
+    if not but:
+        raise HTTPException(status_code=404, detail="But non trouvé")
+    return but  # Retourne l'objet but directement
+
+@but_router.put("/{but_id}", response_model=dict)
+async def update_but(but_id: str, but: But):
+    result = await db.buts.update_one({"_id": ObjectId(but_id)}, {"$set": but.dict()})
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="But not found")
+    return {"message": "But updated successfully"}
+
+
+@but_router.delete("/{but_id}", response_model=dict)
+async def delete_but(but_id: str):
+    try:
+        oid = ObjectId(but_id)
+    except:
+        raise HTTPException(status_code=400, detail="ID invalide")
+
+    result = await db.buts.delete_one({"_id": oid})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="But non trouvé")
+
+    return JSONResponse(status_code=200, content={"status_code": 200, "message": "But supprimé avec succès"})
+
+
