@@ -44,6 +44,11 @@ async def signin(user_data: dict):
         {
             "user_id": str(existing_user["_id"]),
             "role": existing_user.get("role", "user"),
+             "name": existing_user["name"], 
+            "FamilyName": existing_user["FamilyName"], 
+            "education": existing_user["education"], 
+             "country": existing_user["country"], 
+                 
             "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)
         },
         SECRET_KEY,

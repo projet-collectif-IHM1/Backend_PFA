@@ -4,6 +4,7 @@ from typing import Optional
 class User(BaseModel):
     name: str
     email: str
+    FamilyName:str
     password: str
     education: str
     country: Optional[str] = None
