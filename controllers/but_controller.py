@@ -5,50 +5,40 @@ from passlib.context import CryptContext
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import List
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
-
 
 but_router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[MONGO_DB]
 
+# Créer un but
 @but_router.post("/")
-async def create_hotel(but: But):
+async def create_but(but: But):
     user = await db.users.find_one({"_id": ObjectId(but.user_id)})
     if not user:
-        raise HTTPException(status_code=404, detail="user not found")
+        raise HTTPException(status_code=404, detail="Utilisateur non trouvé")
     result = await db.buts.insert_one(but.dict())
     return {"id": str(result.inserted_id)}
 
-
+# Obtenir tous les buts
 @but_router.get("/", response_model=List[But])
-async def get_payes():
-    cats = await db.buts.find().to_list(100)
+async def get_buts():
+    buts = await db.buts.find().to_list(100)
+    for but in buts:
+        but["id"] = str(but["_id"])
+        del but["_id"]
+    return JSONResponse(status_code=200, content={"status_code": 200, "buts": buts})
 
-    # Convertir _id en string et l'ajouter en tant que 'id'
-    for cat in cats:
-        cat["id"] = str(cat["_id"])
-        del cat["_id"]  # Supprimer _id original si nécessaire
-
-    return JSONResponse(status_code=200, content={"status_code": 200, "buts": cats})
-
-@but_router.get("/{but_id}", response_model=But)
-async def get_but_by_id(but_id: str):
-    but = await db.buts.find_one({"_id": ObjectId(but_id)})
-    if not but:
-        raise HTTPException(status_code=404, detail="But non trouvé")
-    return but  # Retourne l'objet but directement
-
+# Mettre à jour un but par ID
 @but_router.put("/{but_id}", response_model=dict)
 async def update_but(but_id: str, but: But):
     result = await db.buts.update_one({"_id": ObjectId(but_id)}, {"$set": but.dict()})
     if result.modified_count == 0:
-        raise HTTPException(status_code=404, detail="But not found")
-    return {"message": "But updated successfully"}
+        raise HTTPException(status_code=404, detail="But non trouvé")
+    return {"message": "But mis à jour avec succès"}
 
-
+# Supprimer un but par ID
 @but_router.delete("/{but_id}", response_model=dict)
 async def delete_but(but_id: str):
     try:
@@ -62,4 +52,13 @@ async def delete_but(but_id: str):
 
     return JSONResponse(status_code=200, content={"status_code": 200, "message": "But supprimé avec succès"})
 
-
+# Obtenir les buts d'un utilisateur par son user_id
+@but_router.get("/user/{user_id}", response_model=List[But])
+async def get_buts_by_user_id(user_id: str):
+    buts = await db.buts.find({"user_id": user_id}).to_list(100)
+    if not buts:
+        raise HTTPException(status_code=404, detail="Aucun but trouvé pour cet utilisateur")
+    for but in buts:
+        but["id"] = str(but["_id"])
+        del but["_id"]
+    return JSONResponse(status_code=200, content={"status_code": 200, "buts": buts})
